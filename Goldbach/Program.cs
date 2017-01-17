@@ -18,7 +18,7 @@ namespace Goldbach
         
         static void Main(string[] args)
         {
-            _upTo = ReadToInt("Up to what number wuld you like to confirm the Goldbach conjecture?");
+            _upTo = ReadToInt("Up to what number would you like to confirm the Goldbach conjecture?");
             var numberOfThreads = ReadToInt("How many threads would you like to use?");
             Print("You may quit at any time by pressing enter");
 
@@ -32,16 +32,11 @@ namespace Goldbach
                 tasks.Add(t);
             }
 
-            
+
             while (!Task.WhenAll(tasks).IsCompleted)
                 if (EnterKeyDetected)
                     taskManager.Cancel();
-             
-            PrintResults();
-        }
-
-        private static void PrintResults()
-        {
+            
             Print("Done. Press Enter to see results.");
             if (EnterKeyPressed)
                 Goldbachs
@@ -51,22 +46,19 @@ namespace Goldbach
             Console.ReadKey();
         }
 
-        private static void CalculateGoldbachs(CancellationToken token)
+       
+
+        private static void CalculateGoldbachs(CancellationToken signal)
         {
-            int x;
-            do
+            int x = NextEvenNumber;
+            while (!signal.IsCancellationRequested && x <= _upTo)
             {
-                x = NextEvenNumber;
-
-                if ( x > _upTo || token.IsCancellationRequested) break;
-
                 var composition = Goldbach.Composition(x);
-                
                 lock (Lock) Goldbachs.Add(x, composition);
-
-            } while (x <= _upTo);    
+                x = NextEvenNumber;
+            }     
         }
-
+        
         private static bool EnterKeyDetected => Console.KeyAvailable && EnterKeyPressed;
 
         private static bool EnterKeyPressed => Console.ReadKey().Key == ConsoleKey.Enter;

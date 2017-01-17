@@ -17,9 +17,9 @@ namespace Goldbach
             return null;
         }
 
-        public static bool AreNotPrime(int x, int i)
+        public static bool AreNotPrime(int x, int y)
         {
-            return i.IsNotPrime() || x.IsNotPrime();
+            return y.IsNotPrime() || x.IsNotPrime();
         }
 
         public static bool IsNotPrime(this int x)
