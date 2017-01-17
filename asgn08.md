@@ -107,7 +107,7 @@ private static void CalculateGoldbachs(CancellationToken signal)
     }     
 }
 ```
-The function takes a `CancellationToken` that it will use to receive a halt signal from the outside world.
+The function takes a `CancellationToken` which it will use to receive a halt signal from the outside world.
 
 The code runs in a loop while two conditions are met: One, no cancellation has been requested, and two, the next even number is less then or equal to `_upTo`.
 
