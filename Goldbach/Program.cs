@@ -32,7 +32,9 @@ namespace Goldbach
                 tasks.Add(t);
             }
 
-
+            // loop while the threads are running, and use the non-blocking EnterKeyDetected to 
+            // check for Enter being pressed. After all tasks are completed, the code will move
+            // on, regardless if they were completed by cancellation or by finishing
             while (!Task.WhenAll(tasks).IsCompleted)
                 if (EnterKeyDetected)
                     taskManager.Cancel();
