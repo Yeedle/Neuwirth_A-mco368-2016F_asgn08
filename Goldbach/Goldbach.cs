@@ -11,15 +11,10 @@ namespace Goldbach
             if (x == 4) return new Tuple<int, int>(2, 2);
             for (int i = 3; i <= x/2; i += 2)
             {
-                if (AreNotPrime(i, x-i)) continue;
+                if (i.IsNotPrime() || (x-i).IsNotPrime()) continue;
                 return new Tuple<int, int>(i, x - i);
             }
             return null;
-        }
-
-        public static bool AreNotPrime(int x, int y)
-        {
-            return y.IsNotPrime() || x.IsNotPrime();
         }
 
         public static bool IsNotPrime(this int x)

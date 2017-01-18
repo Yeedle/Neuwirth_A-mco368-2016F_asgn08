@@ -39,10 +39,6 @@ namespace Goldbach.Tests
             Assert.IsFalse(3.IsNotPrime());
         }
 
-        [TestMethod()]
-        public void AreNotPrimeTest()
-        {
-            Assert.IsFalse(Goldbach.AreNotPrime(3, 3));
-        }
+       
     }
 }

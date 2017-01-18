@@ -3,17 +3,12 @@ Abraham Neuwirth
 <br/> January 17, 2016
 <center><h2> Assignment 8</h2></center>
 
-
+A version of this document is available on [GitHub](https://github.com/Yeedle/Neuwirth_A-mco368-2016F_asgn08/blob/master/asgn08.md)
 The program consists of a `Program` class which contains the `Main` method, and a static class called `Goldbach` which contains a method called `Composition` that returns a tuple of a Goldbach composition for the int that was passed in plus several helper methods
 ### Goldbach Algorithm
 The static `Composition` method relies on several helper methods to find a Goldbach composition. The helper methods are defined as follows:
 
 ```csharp
-public static bool AreNotPrime(int x, int y)
-{
-    return y.IsNotPrime() || x.IsNotPrime();
-}
-
 public static bool IsNotPrime(this int x)
 {
     return !x.IsPrime();
@@ -38,7 +33,7 @@ public static Tuple<int, int> Composition(int x)
     if (x == 4) return new Tuple<int, int>(2, 2);
     for (int i = 3; i <= x/2; i += 2)
     {
-        if (AreNotPrime(i, x-i)) continue;
+        if (y.IsNotPrime() || (x-i).IsNotPrime()) continue;
         return new Tuple<int, int>(i, x - i);
     }
     return null;
@@ -107,7 +102,6 @@ private static void CalculateGoldbachs(CancellationToken signal)
     }     
 }
 ```
-The function takes a `CancellationToken` which it will use to receive a halt signal from the outside world.
 
 The code runs in a loop while two conditions are met: One, no cancellation has been requested, and two, the next even number is less then or equal to `_upTo`.
 
@@ -123,30 +117,37 @@ private static bool EnterKeyDetected => Console.KeyAvailable && EnterKeyPressed;
 
 The `EnterKeyPressed` waits for the user to enter a key and checks if it was the Enter key. `EnterKeyDetected` checks if there is any input from the keyboard before actually blocking its thread to see what key was pressed.
 
-The `Main` method sets up the `Task`s and reports the results back to the user:
+The `Main` method sets up the `Task`s and reports the results back to the user. First we get the number up to which the program will run, and the number of threads to use:
 
 ```csharp
-static void Main(string[] args)
+_upTo = ReadToInt("Up to what number would you like to confirm the Goldbach conjecture?");
+var numberOfThreads = ReadToInt("How many threads would you like to use?");
+Print("You may quit at any time by pressing enter");
+```
+Then we set up the `CancellationTokenSource` which is used to send the cancellation signal to the `Task`s and, the `Token` which is passed to the delegate inside the task which in turn uses it to intercept the cancellation signal.
+```csharp
+var taskManager = new CancellationTokenSource();
+var cancelSignal = taskManager.Token;
+```
+A `List` of tasks is initialized, and then a loop initialized the number of `Task`s as specified by the user. To each task, we pass in the `CalculateGoldbachs` as an action, and to `CalculateGoldbachs` itself we pass in our `Token`.
+```csharp
+var tasks = new List<Task>();
+for (var i = 0; i < numberOfThreads; i++)
 {
-    _upTo = ReadToInt("Up to what number would you like to confirm the Goldbach conjecture?");
-    var numberOfThreads = ReadToInt("How many threads would you like to use?");
-    Print("You may quit at any time by pressing enter");
+    var t = Task.Factory.StartNew(() => CalculateGoldbachs(cancelSignal));
+    tasks.Add(t);
+}
+```
+Next, a while loop runs, waiting for all the tasks to complete. (`WhenAll` was used for this rather then `WaitAll`, because `WhenAll` creates a new `Task` which exposes a bool property we can use as the loop's conditinal.) All the while we're waiting for all the tasks to complete, we use `EnterKeyDetected` to check if the user entered a key. If the user enters one, it will block the thread to see if it's the Enter key, and if it is, the cancellation signal will be sent. In all likelihood, it will take a short while before all the tasks will all get the halt signal, so the while loop will continue to run, but soon enough it the condition `!Task.WhenAll(tasks).IsCompleted` will return false and the program will continue on. In the case the user doesn't press any key, the while loop will continue spinning till all the tasks are truly done, and it will then move on.
 
-    var taskManager = new CancellationTokenSource();
-    var cancelSignal = taskManager.Token;
+```csharp
+while (!Task.WhenAll(tasks).IsCompleted)
+    if (EnterKeyDetected)
+        taskManager.Cancel();
+```
 
-    var tasks = new List<Task>();
-    for (var i = 0; i < numberOfThreads; i++)
-    {
-        var t = Task.Factory.StartNew(() => CalculateGoldbachs(cancelSignal));
-        tasks.Add(t);
-    }
-
-
-    while (!Task.WhenAll(tasks).IsCompleted)
-        if (EnterKeyDetected)
-            taskManager.Cancel();
-
+Finally, we ask for Enter to be pressed in order to show the results, then use Linq extension methods to present the results in sorted order.
+```csharp
     Print("Done. Press Enter to see results.");
     if (EnterKeyPressed)
         Goldbachs
@@ -154,13 +155,4 @@ static void Main(string[] args)
             .ToList()
             .ForEach(t => Print($"{t.Key} = {t.Value.Item1} + {t.Value.Item2}"));
     Console.ReadKey();
-}
 ```
-
-Let's break it down. First we get the number up to which the program will run. Next we get the number of threads. Then we set up the `CancellationTokenSource` which is used to send the cancellation signal to the `Task`s and, the `Token` which is passed to the delegate inside the task which in turn uses it to intercept the cancellation signal.
-
-A `List` of tasks is initialized, and then a loop initialized the number of `Task`s as specified by the user. To each task, we pass in the `CalculateGoldbachs` as an action, and to `CalculateGoldbachs` itself we pass in our `Token`.
-
-Next, a while loop runs, waiting for all the tasks to complete. (`WhenAll` was used for this rather then `WaitAll`, because `WhenAll` creates a new `Task` which exposes a bool property we can use as the loop's conditinal.) All the while we're waiting for all the tasks to complete, we use `EnterKeyDetected` to check if the user entered a key. If the user enters one, it will block the thread to see if it's the Enter key, and if it is, the cancellation signal will be sent. In all likelihood, it will take a short while before all the tasks will all get the halt signal, so the while loop will continue to run, but soon enough it the condition `!Task.WhenAll(tasks).IsCompleted` will return false and the program will continue on. In the case the user doesn't press any key, the while loop will continue spinning till all the tasks are truly done, and it will then move on.
-
-Finally, we ask for Enter to be pressed in order to show the results, then use Linq extension methods to present the results in sorted order.
