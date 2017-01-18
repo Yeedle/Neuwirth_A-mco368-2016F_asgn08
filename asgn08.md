@@ -148,13 +148,13 @@ while (!Task.WhenAll(tasks).IsCompleted)
         taskManager.Cancel();
 ```
 
-Finally, we ask for Enter to be pressed in order to show the results, then use Linq extension methods to present the results in sorted order.
+Finally, As soon as the results are in, the results are displayed in sorted order. Then, the program waits for the user to press Enter and then it quits.
 ```csharp
-    Print("Done. Press Enter to see results.");
-    if (EnterKeyPressed)
-        Goldbachs
-            .OrderBy(t => t.Key)
-            .ToList()
-            .ForEach(t => Print($"{t.Key} = {t.Value.Item1} + {t.Value.Item2}"));
-    Console.ReadKey();
+   Goldbachs
+        .OrderBy(t => t.Key)
+        .ToList()
+        .ForEach(t => Print($"{t.Key} = {t.Value.Item1} + {t.Value.Item2}"));
+
+    Print("Press Enter to quit.");
+    while (!EnterKeyPressed);
 ```

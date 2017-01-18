@@ -37,13 +37,13 @@ namespace Goldbach
                 if (EnterKeyDetected)
                     taskManager.Cancel();
             
-            Print("Done. Press Enter to see results.");
-            if (EnterKeyPressed)
-                Goldbachs
-                    .OrderBy(t => t.Key)
-                    .ToList()
-                    .ForEach(t => Print($"{t.Key} = {t.Value.Item1} + {t.Value.Item2}"));
-            Console.ReadKey();
+            Goldbachs
+                .OrderBy(t => t.Key)
+                .ToList()
+                .ForEach(t => Print($"{t.Key} = {t.Value.Item1} + {t.Value.Item2}"));
+
+            Print("Press Enter to quit.");
+            while (!EnterKeyPressed) ;
         }
 
        
