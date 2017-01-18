@@ -3,7 +3,9 @@ Abraham Neuwirth
 <br/> January 17, 2016
 <center><h2> Assignment 8</h2></center>
 
-A version of this document is available on [GitHub](https://github.com/Yeedle/Neuwirth_A-mco368-2016F_asgn08/blob/master/asgn08.md)
+A version of this document is available on [GitHub](https://github.com/Yeedle/Neuwirth_A-mco368-2016F_asgn08/blob/master/asgn08.md).
+
+
 The program consists of a `Program` class which contains the `Main` method, and a static class called `Goldbach` which contains a method called `Composition` that returns a tuple of a Goldbach composition for the int that was passed in plus several helper methods
 ### Goldbach Algorithm
 The static `Composition` method relies on several helper methods to find a Goldbach composition. The helper methods are defined as follows:
